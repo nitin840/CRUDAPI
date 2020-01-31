@@ -23,8 +23,6 @@ router.use('/image',express.static('upload/images'))
 
 // insert data
 router.post('/insert',upload.single('image'),(req,res)=>{
-    console.log(req.file)
-    console.log(req.body)
 
     if(!req.body.email || !req.body.name || !req.file){
         return  res.status(400).json({
@@ -105,7 +103,6 @@ router.get('/get/:email',(req,res)=>{
 
 //update record 
 router.put('/update/:email',(req,res)=>{
-    //console.log(req.params)
     let email =req.params.email
     if(!req.params.email || !req.body){
         return res.status(400).json({
@@ -138,8 +135,8 @@ router.put('/update/:email',(req,res)=>{
 
 //delete record
 router.delete('/delete/:email',(req,res)=>{
+    
     let email =req.params.email
-    console.log(req.params)
     if(!req.params.email){
         return res.status(400).json({
             message: "Bad request"

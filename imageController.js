@@ -26,7 +26,7 @@ router.post('/insert',upload.single('image'),(req,res)=>{
     console.log(req.file)
     console.log(req.body)
 
-    if(!req.body || !req.file){
+    if(!req.body.email || !req.body.name || !req.file){
         return  res.status(400).json({
             message : "Full data required"
         })
@@ -105,8 +105,9 @@ router.get('/get/:email',(req,res)=>{
 
 //update record 
 router.put('/update/:email',(req,res)=>{
-    console.log(req.params)
-    if(!req.params || !req.body){
+    //console.log(req.params)
+    let email =req.params.email
+    if(!req.params.email || !req.body){
         return res.status(400).json({
             message : "Bad request "
         })
@@ -115,15 +116,18 @@ router.put('/update/:email',(req,res)=>{
     .then(data =>{
         if(!data){
             return res.status(404).json({
-                message: "No record found with id "+req.params.id
+                message: "No record found with email "+ email
             })
         }
-        res.status(200).json(data)
+        res.status(200).json({
+            message : "Updated succesfully",
+            data : data
+        })
     })
     .catch(err =>{
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
-                message: "Record not found with id " + req.params.id
+                message: "Record not found with email " + email
             });                
         }
         res.status(500).json({
@@ -134,6 +138,7 @@ router.put('/update/:email',(req,res)=>{
 
 //delete record
 router.delete('/delete/:email',(req,res)=>{
+    let email =req.params.email
     console.log(req.params)
     if(!req.params.email){
         return res.status(400).json({
@@ -144,17 +149,17 @@ router.delete('/delete/:email',(req,res)=>{
     .then(data =>{
         if(!data){
             return res.status(404).json({
-                message:"No record found with id "+req.params.email
+                message:"No record found with email "+email
             })
         }
         res.status(200).json({
-            message: "successfully record deleted with id "+req.params.email
+            message: "successfully record deleted with email "+email
         })
     })
     .catch(err => {
         if(err.kind === 'ObjectId' || err.name === 'NotFound'){
             res.status(404).json({
-                message : "No record found with id "+req.params.id +" "+ err.message
+                message : "No record found with id "+email +", "+ err.message
             })
         }
         res.status(500).json({

@@ -11,5 +11,5 @@ mongoose.connect(dbUrl,{
     console.log('successfully connected to database')
 }).catch(()=>{
     console.log('unable to connect')
-    //process.exit()
+    process.exit()
 });

@@ -4,6 +4,8 @@ var multer = require('multer')
 var path = require('path')
 var Image = require('./imageModel')
 var bodyParser = require('body-parser')
+var jwt = require('jsonwebtoken')
+
 
 //image storage
 var storage = multer.diskStorage({
@@ -20,6 +22,86 @@ var upload = multer({
 router.use(bodyParser.urlencoded({extended:true}))
 router.use(bodyParser.json())
 router.use('/image',express.static('upload/images'))
+
+//token verification
+const verifyToken = (req,res,next) => {
+    var tokenHeader = req.headers.authorization
+ 
+    if(!tokenHeader || typeof tokenHeader === 'undefined'){
+        res.status(403).send({
+            auth : false,
+            message : "NO token provided "+ token
+        })
+        console.log('R::')
+    }else{
+        token = tokenHeader.split(' ')[1]
+        jwt.verify(token,'secretKey',(err, payLoad)=>{
+            if(err){
+                return res.status(500).send({
+                    auth : false,
+                    message : "token verify error "+ err.message
+                })
+            }
+            next()
+            console.log('Q::')
+        })
+    }
+}
+
+// user register
+router.post('/register',upload.single('image'),(req,res) => {
+    let body = req.body
+    let file = req.file
+    if(Object.keys(req.body).length === 0 || !req.file){
+        return res.status(400).json({
+            message : "All data required",
+        })
+    }
+    const image = new Image({
+        email: body.email,
+        name : body.name,
+        image : file.destination+"/"+file.filename
+    })
+
+    image.save()
+    .then(data => {
+            res.status(200).json({
+                message : "Successfully registered with " + data.name
+            })
+    })
+    .catch(err =>{
+        res.status(500).json({
+            message : "Unable to register "+ err.message
+        })
+    })
+})
+
+//user login
+router.post('/login',(req,res) => {
+
+    if(Object.keys(req.body).length === 0){
+        res.status(400).json({
+            message : "Credentials required!"
+        })
+    }
+
+    Image.findOne(req.body,'name email')
+    .then(data => {
+        if(!data){
+            return res.status(404).json({
+                message : "No user found with this credentials"
+            })
+        }
+        jwt.sign({data},'secretKey',{expiresIn:'30s'},(err, token)=>{
+            if(err){
+                return res.send({message : "token error "+err.message })
+            }
+            res.send(token)
+        })
+    })
+    .catch(err => res.status(500).json({ message : "Unable to find user "+ err.message}))
+
+})
 
 // insert data
 router.post('/insert',upload.single('image'),(req,res)=>{
@@ -164,6 +246,5 @@ router.delete('/delete/:email',(req,res)=>{
         })
     })
 })
-
 
 module.exports = router

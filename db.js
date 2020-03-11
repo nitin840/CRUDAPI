@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
-const dbUrl = 'mongodb://localhost:27017/imageInfo'
+const MONGO_URI = 'mongodb+srv://nitin840:happyholi@userdb-4kaxt.mongodb.net/test?retryWrites=true&w=majority'
+const dbUrl = MONGO_URI ||'mongodb://localhost:27017/imageInfo'
 
 mongoose.Promise = global.Promise
 

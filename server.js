@@ -2,7 +2,10 @@ var app = require('./index')
 const port = process.env.PORT || 8080
 
 app.use('/',(req,res)=>{
-    res.send('hello fellas, this  server is working!')
+    res.render("welcome", {
+        hello: Date.now() + " Hello, this endpoint is working... OMG!",
+        title: "Heroku CRUD"
+      });
 })
 
 app.listen(port,()=>{ 
